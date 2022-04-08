@@ -1,4 +1,4 @@
-import { createUserWithEmailAndPassword, getAuth, sendEmailVerification, sendPasswordResetEmail, signInWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, getAuth, sendEmailVerification, sendPasswordResetEmail, signInWithEmailAndPassword, updateProfile } from "firebase/auth";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 import app from "./firebase.init";
@@ -12,6 +12,7 @@ const auth = getAuth(app);
 function App() {
 
   const [email, setEmail] = useState('');
+  const [name, setName] = useState('');
   const [error, setError] = useState('');
   const [password, setPassword] = useState('');
   const [registered, setRegistered] = useState(false);
@@ -21,6 +22,9 @@ function App() {
   }
   const handleEmailBlur = event => {
     setEmail(event.target.value);
+  }
+  const handleNameBlur = event =>{
+    setName(event.target.value);
   }
   const handleCheckChange = event =>{
       setRegistered(event.target.checked);
@@ -62,6 +66,7 @@ function App() {
          setEmail('');
          setPassword('');
           verifyEmail();
+          setUsername();
        })
        .catch(error => {
          setError(error.message);
@@ -75,12 +80,32 @@ function App() {
     })
   }
 
+  const setUsername =()=>{
+    updateProfile(auth.currentUser , {
+      displayName: name
+    })
+    .then(()=>{
+      console.log('updating name');
+
+    }).catch(error =>{
+      setError(error.message);
+    })
+  }
+
   return (
     <div >
 
       <div className="registration mx-auto w-50 mt-4">
         <h2 className="text-primary">Please {registered? 'Log In' : 'registration'}</h2>
         <Form onSubmit={handleSubmit}>
+          {!registered && <Form.Group className="mb-3" controlId="formBasicEmail">
+            <Form.Label>Your Name</Form.Label>
+            <Form.Control onBlur={handleNameBlur} type="text" placeholder="Your Name" required />
+            <Form.Text className="text-muted">
+              Provide Your Name
+            </Form.Text>
+          </Form.Group>}
+
           <Form.Group className="mb-3" controlId="formBasicEmail">
             <Form.Label>Email address</Form.Label>
             <Form.Control onBlur={handleEmailBlur} type="email" placeholder="Enter email" required />
